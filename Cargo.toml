@@ -1,0 +1,16 @@
+[package]
+name = "aes-keywrap"
+version = "0.1.0"
+authors = ["Frank Denis <github@pureftpd.org>"]
+edition = "2018"
+description = "AES Key Wrap construction (AES-KW, RFC 3394 / RFC 5649)"
+keywords = ["crypto", "aes", "keywrap", "aes-kw"]
+repository = "https://github.com/jedisct1/rust-aes-keywrap"
+homepage = "https://github.com/jedisct1/rust-aes-keywrap"
+categories = ["algorithms", "cryptography", "no-std", "wasm"]
+license = "ISC"
+readme = "README.md"
+
+[dependencies]
+aes = "0.5"
+byteorder = "1.3"
