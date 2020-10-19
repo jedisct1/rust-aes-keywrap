@@ -3,9 +3,9 @@
 use std::error::Error;
 use std::fmt;
 
-use aes::block_cipher::generic_array::GenericArray;
-use aes::block_cipher::{BlockCipher, NewBlockCipher};
+use aes::cipher::generic_array::GenericArray;
 use aes::{Aes128, Aes256};
+use aes::{BlockCipher, NewBlockCipher};
 use byteorder::{BigEndian, ByteOrder};
 
 const FEISTEL_ROUNDS: usize = 5;
