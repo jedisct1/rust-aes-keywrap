@@ -1,6 +1,6 @@
 [package]
 name = "aes-keywrap"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["Frank Denis <github@pureftpd.org>"]
 edition = "2018"
 description = "AES Key Wrap construction (AES-KW, RFC 3394 / RFC 5649)"
@@ -12,5 +12,5 @@ license = "ISC"
 readme = "README.md"
 
 [dependencies]
-aes = "0.6"
+aes = "0.6.0"
 byteorder = "1.4"
