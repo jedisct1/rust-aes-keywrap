@@ -12,5 +12,5 @@ license = "ISC"
 readme = "README.md"
 
 [dependencies]
-aes = "0.6.0"
+aes = "0.7.1"
 byteorder = "1.4"
