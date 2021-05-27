@@ -5,7 +5,7 @@ use std::fmt;
 
 use aes::cipher::generic_array::GenericArray;
 use aes::{Aes128, Aes256};
-use aes::{BlockCipher, NewBlockCipher};
+use aes::{BlockDecrypt, BlockEncrypt, NewBlockCipher};
 use byteorder::{BigEndian, ByteOrder};
 
 const FEISTEL_ROUNDS: usize = 5;
