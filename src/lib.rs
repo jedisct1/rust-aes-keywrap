@@ -66,7 +66,7 @@ impl Aes256KeyWrap {
         block[0..8].copy_from_slice(&aiv);
 
         if input.len() == 8 {
-            block[8..16].copy_from_slice(&input);
+            block[8..16].copy_from_slice(input);
             self.aes.encrypt_block(&mut block);
             return Ok(block.to_vec());
         }
@@ -118,7 +118,7 @@ impl Aes256KeyWrap {
         let mut block = GenericArray::from_mut_slice(&mut block);
 
         if output.len() == 8 {
-            block.copy_from_slice(&input);
+            block.copy_from_slice(input);
             self.aes.decrypt_block(&mut block);
             let c = block[0..8]
                 .iter()
@@ -191,7 +191,7 @@ impl Aes128KeyWrap {
         block[0..8].copy_from_slice(&aiv);
 
         if input.len() == 8 {
-            block[8..16].copy_from_slice(&input);
+            block[8..16].copy_from_slice(input);
             self.aes.encrypt_block(&mut block);
             return Ok(block.to_vec());
         }
@@ -243,7 +243,7 @@ impl Aes128KeyWrap {
         let mut block = GenericArray::from_mut_slice(&mut block);
 
         if output.len() == 8 {
-            block.copy_from_slice(&input);
+            block.copy_from_slice(input);
             self.aes.decrypt_block(&mut block);
             let c = block[0..8]
                 .iter()
