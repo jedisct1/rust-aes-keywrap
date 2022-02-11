@@ -3,9 +3,8 @@
 use std::error::Error;
 use std::fmt;
 
-use aes::cipher::generic_array::GenericArray;
+use aes::cipher::{generic_array::GenericArray, BlockDecrypt, BlockEncrypt, KeyInit};
 use aes::{Aes128, Aes256};
-use aes::{BlockDecrypt, BlockEncrypt, NewBlockCipher};
 use byteorder::{BigEndian, ByteOrder};
 
 const FEISTEL_ROUNDS: usize = 5;
@@ -62,12 +61,12 @@ impl Aes256KeyWrap {
         let mut aiv: [u8; 8] = [0xa6u8, 0x59, 0x59, 0xa6, 0, 0, 0, 0];
         BigEndian::write_u32(&mut aiv[4..8], input.len() as u32);
         let mut block = [0u8; 16];
-        let mut block = GenericArray::from_mut_slice(&mut block);
+        let block = GenericArray::from_mut_slice(&mut block);
         block[0..8].copy_from_slice(&aiv);
 
         if input.len() == 8 {
             block[8..16].copy_from_slice(input);
-            self.aes.encrypt_block(&mut block);
+            self.aes.encrypt_block(block);
             return Ok(block.to_vec());
         }
 
@@ -79,7 +78,7 @@ impl Aes256KeyWrap {
             let mut i = 8;
             while i <= (input.len() + 7) & !7 {
                 block[8..16].copy_from_slice(&output[i..][0..8]);
-                self.aes.encrypt_block(&mut block);
+                self.aes.encrypt_block(block);
                 counter += 1;
                 BigEndian::write_u64(&mut counter_bin, counter);
                 block[8..16]
@@ -115,11 +114,11 @@ impl Aes256KeyWrap {
         BigEndian::write_u32(&mut aiv[4..8], expected_len as u32);
 
         let mut block = [0u8; 16];
-        let mut block = GenericArray::from_mut_slice(&mut block);
+        let block = GenericArray::from_mut_slice(&mut block);
 
         if output.len() == 8 {
             block.copy_from_slice(input);
-            self.aes.decrypt_block(&mut block);
+            self.aes.decrypt_block(block);
             let c = block[0..8]
                 .iter()
                 .zip(aiv.iter())
@@ -146,7 +145,7 @@ impl Aes256KeyWrap {
                     .iter_mut()
                     .zip(counter_bin.iter())
                     .for_each(|(a, b)| *a ^= b);
-                self.aes.decrypt_block(&mut block);
+                self.aes.decrypt_block(block);
                 output[i..][0..8].copy_from_slice(&block[8..16]);
             }
         }
@@ -187,12 +186,12 @@ impl Aes128KeyWrap {
         let mut aiv: [u8; 8] = [0xa6u8, 0x59, 0x59, 0xa6, 0, 0, 0, 0];
         BigEndian::write_u32(&mut aiv[4..8], input.len() as u32);
         let mut block = [0u8; 16];
-        let mut block = GenericArray::from_mut_slice(&mut block);
+        let block = GenericArray::from_mut_slice(&mut block);
         block[0..8].copy_from_slice(&aiv);
 
         if input.len() == 8 {
             block[8..16].copy_from_slice(input);
-            self.aes.encrypt_block(&mut block);
+            self.aes.encrypt_block(block);
             return Ok(block.to_vec());
         }
 
@@ -204,7 +203,7 @@ impl Aes128KeyWrap {
             let mut i = 8;
             while i <= (input.len() + 7) & !7 {
                 block[8..16].copy_from_slice(&output[i..][0..8]);
-                self.aes.encrypt_block(&mut block);
+                self.aes.encrypt_block(block);
                 counter += 1;
                 BigEndian::write_u64(&mut counter_bin, counter);
                 block[8..16]
@@ -240,11 +239,11 @@ impl Aes128KeyWrap {
         BigEndian::write_u32(&mut aiv[4..8], expected_len as u32);
 
         let mut block = [0u8; 16];
-        let mut block = GenericArray::from_mut_slice(&mut block);
+        let block = GenericArray::from_mut_slice(&mut block);
 
         if output.len() == 8 {
             block.copy_from_slice(input);
-            self.aes.decrypt_block(&mut block);
+            self.aes.decrypt_block(block);
             let c = block[0..8]
                 .iter()
                 .zip(aiv.iter())
@@ -271,7 +270,7 @@ impl Aes128KeyWrap {
                     .iter_mut()
                     .zip(counter_bin.iter())
                     .for_each(|(a, b)| *a ^= b);
-                self.aes.decrypt_block(&mut block);
+                self.aes.decrypt_block(block);
                 output[i..][0..8].copy_from_slice(&block[8..16]);
             }
         }
