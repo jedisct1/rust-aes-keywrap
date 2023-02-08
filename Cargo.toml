@@ -8,7 +8,7 @@ keywords = ["crypto", "aes", "keywrap", "aes-kw"]
 repository = "https://github.com/jedisct1/rust-aes-keywrap"
 homepage = "https://github.com/jedisct1/rust-aes-keywrap"
 categories = ["algorithms", "cryptography", "no-std", "wasm"]
-license = "ISC"
+license = "MIT"
 readme = "README.md"
 
 [dependencies]
