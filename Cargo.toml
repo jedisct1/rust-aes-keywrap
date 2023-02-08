@@ -1,6 +1,6 @@
 [package]
 name = "aes-keywrap"
-version = "0.2.4"
+version = "0.2.5"
 authors = ["Frank Denis <github@pureftpd.org>"]
 edition = "2018"
 description = "AES Key Wrap construction (AES-KW, RFC 3394 / RFC 5649)"
