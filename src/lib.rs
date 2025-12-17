@@ -8,7 +8,7 @@ use aes::cipher::{generic_array::GenericArray, BlockDecrypt, BlockEncrypt, KeyIn
 use aes::{Aes128, Aes256};
 use byteorder::{BigEndian, ByteOrder};
 
-const FEISTEL_ROUNDS: usize = 5;
+const FEISTEL_ROUNDS: usize = 6;
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum KeywrapError {
@@ -82,7 +82,7 @@ impl Aes256KeyWrap {
                 self.aes.encrypt_block(block);
                 counter += 1;
                 BigEndian::write_u64(&mut counter_bin, counter);
-                block[8..16]
+                block[0..8]
                     .iter_mut()
                     .zip(counter_bin.iter())
                     .for_each(|(a, b)| *a ^= b);
@@ -142,7 +142,7 @@ impl Aes256KeyWrap {
                 block[8..16].copy_from_slice(&output[i..][0..8]);
                 BigEndian::write_u64(&mut counter_bin, counter);
                 counter -= 1;
-                block[8..16]
+                block[0..8]
                     .iter_mut()
                     .zip(counter_bin.iter())
                     .for_each(|(a, b)| *a ^= b);
@@ -207,7 +207,7 @@ impl Aes128KeyWrap {
                 self.aes.encrypt_block(block);
                 counter += 1;
                 BigEndian::write_u64(&mut counter_bin, counter);
-                block[8..16]
+                block[0..8]
                     .iter_mut()
                     .zip(counter_bin.iter())
                     .for_each(|(a, b)| *a ^= b);
@@ -267,7 +267,7 @@ impl Aes128KeyWrap {
                 block[8..16].copy_from_slice(&output[i..][0..8]);
                 BigEndian::write_u64(&mut counter_bin, counter);
                 counter -= 1;
-                block[8..16]
+                block[0..8]
                     .iter_mut()
                     .zip(counter_bin.iter())
                     .for_each(|(a, b)| *a ^= b);
