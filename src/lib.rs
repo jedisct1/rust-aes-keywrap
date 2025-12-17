@@ -32,7 +32,7 @@ impl fmt::Display for KeywrapError {
             KeywrapError::TooBig => f.write_str("Input too big"),
             KeywrapError::TooSmall => f.write_str("Input too small"),
             KeywrapError::Unpadded => f.write_str("Padding error"),
-            KeywrapError::InvalidExpectedLen => f.write_str("Invalid expected lengthr"),
+            KeywrapError::InvalidExpectedLen => f.write_str("Invalid expected length"),
             KeywrapError::AuthenticationFailed => f.write_str("Authentication failed"),
         }
     }
