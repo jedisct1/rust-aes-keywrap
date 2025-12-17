@@ -4,7 +4,7 @@
 use std::error::Error;
 use std::fmt;
 
-use aes::cipher::{generic_array::GenericArray, BlockDecrypt, BlockEncrypt, KeyInit};
+use aes::cipher::{Array, BlockCipherDecrypt, BlockCipherEncrypt, KeyInit};
 use aes::{Aes128, Aes256};
 use byteorder::{BigEndian, ByteOrder};
 
@@ -54,20 +54,18 @@ impl Aes256KeyWrap {
     }
 
     pub fn encapsulate(&self, input: &[u8]) -> Result<Vec<u8>, KeywrapError> {
-        if input.len() > std::u32::MAX as usize
-            || input.len() as u64 >= std::u64::MAX / FEISTEL_ROUNDS as u64
+        if input.len() > u32::MAX as usize || input.len() as u64 >= u64::MAX / FEISTEL_ROUNDS as u64
         {
             return Err(KeywrapError::TooBig);
         }
         let mut aiv: [u8; 8] = [0xa6u8, 0x59, 0x59, 0xa6, 0, 0, 0, 0];
         BigEndian::write_u32(&mut aiv[4..8], input.len() as u32);
-        let mut block = [0u8; 16];
-        let block = GenericArray::from_mut_slice(&mut block);
+        let mut block = Array([0u8; 16]);
         block[0..8].copy_from_slice(&aiv);
 
         if input.len() == 8 {
             block[8..16].copy_from_slice(input);
-            self.aes.encrypt_block(block);
+            self.aes.encrypt_block(&mut block);
             return Ok(block.to_vec());
         }
 
@@ -79,7 +77,7 @@ impl Aes256KeyWrap {
             let mut i = 8;
             while i <= (input.len() + 7) & !7 {
                 block[8..16].copy_from_slice(&output[i..][0..8]);
-                self.aes.encrypt_block(block);
+                self.aes.encrypt_block(&mut block);
                 counter += 1;
                 BigEndian::write_u64(&mut counter_bin, counter);
                 block[0..8]
@@ -95,16 +93,14 @@ impl Aes256KeyWrap {
     }
 
     pub fn decapsulate(&self, input: &[u8], expected_len: usize) -> Result<Vec<u8>, KeywrapError> {
-        if input.len() % 8 != 0 {
+        if !input.len().is_multiple_of(8) {
             return Err(KeywrapError::Unpadded);
         }
         let output_len = input
             .len()
             .checked_sub(Self::MAC_BYTES)
             .ok_or(KeywrapError::TooSmall)?;
-        if output_len > std::u32::MAX as usize
-            || output_len as u64 >= std::u64::MAX / FEISTEL_ROUNDS as u64
-        {
+        if output_len > u32::MAX as usize || output_len as u64 >= u64::MAX / FEISTEL_ROUNDS as u64 {
             return Err(KeywrapError::TooBig);
         }
         if expected_len > output_len || (expected_len & !7) > output_len {
@@ -114,12 +110,11 @@ impl Aes256KeyWrap {
         let mut aiv: [u8; 8] = [0xa6u8, 0x59, 0x59, 0xa6, 0, 0, 0, 0];
         BigEndian::write_u32(&mut aiv[4..8], expected_len as u32);
 
-        let mut block = [0u8; 16];
-        let block = GenericArray::from_mut_slice(&mut block);
+        let mut block = Array([0u8; 16]);
 
         if output.len() == 8 {
             block.copy_from_slice(input);
-            self.aes.decrypt_block(block);
+            self.aes.decrypt_block(&mut block);
             let c = block[0..8]
                 .iter()
                 .zip(aiv.iter())
@@ -146,7 +141,7 @@ impl Aes256KeyWrap {
                     .iter_mut()
                     .zip(counter_bin.iter())
                     .for_each(|(a, b)| *a ^= b);
-                self.aes.decrypt_block(block);
+                self.aes.decrypt_block(&mut block);
                 output[i..][0..8].copy_from_slice(&block[8..16]);
             }
         }
@@ -179,20 +174,18 @@ impl Aes128KeyWrap {
     }
 
     pub fn encapsulate(&self, input: &[u8]) -> Result<Vec<u8>, KeywrapError> {
-        if input.len() > std::u32::MAX as usize
-            || input.len() as u64 >= std::u64::MAX / FEISTEL_ROUNDS as u64
+        if input.len() > u32::MAX as usize || input.len() as u64 >= u64::MAX / FEISTEL_ROUNDS as u64
         {
             return Err(KeywrapError::TooBig);
         }
         let mut aiv: [u8; 8] = [0xa6u8, 0x59, 0x59, 0xa6, 0, 0, 0, 0];
         BigEndian::write_u32(&mut aiv[4..8], input.len() as u32);
-        let mut block = [0u8; 16];
-        let block = GenericArray::from_mut_slice(&mut block);
+        let mut block = Array([0u8; 16]);
         block[0..8].copy_from_slice(&aiv);
 
         if input.len() == 8 {
             block[8..16].copy_from_slice(input);
-            self.aes.encrypt_block(block);
+            self.aes.encrypt_block(&mut block);
             return Ok(block.to_vec());
         }
 
@@ -204,7 +197,7 @@ impl Aes128KeyWrap {
             let mut i = 8;
             while i <= (input.len() + 7) & !7 {
                 block[8..16].copy_from_slice(&output[i..][0..8]);
-                self.aes.encrypt_block(block);
+                self.aes.encrypt_block(&mut block);
                 counter += 1;
                 BigEndian::write_u64(&mut counter_bin, counter);
                 block[0..8]
@@ -220,16 +213,14 @@ impl Aes128KeyWrap {
     }
 
     pub fn decapsulate(&self, input: &[u8], expected_len: usize) -> Result<Vec<u8>, KeywrapError> {
-        if input.len() % 8 != 0 {
+        if !input.len().is_multiple_of(8) {
             return Err(KeywrapError::Unpadded);
         }
         let output_len = input
             .len()
             .checked_sub(Self::MAC_BYTES)
             .ok_or(KeywrapError::TooSmall)?;
-        if output_len > std::u32::MAX as usize
-            || output_len as u64 >= std::u64::MAX / FEISTEL_ROUNDS as u64
-        {
+        if output_len > u32::MAX as usize || output_len as u64 >= u64::MAX / FEISTEL_ROUNDS as u64 {
             return Err(KeywrapError::TooBig);
         }
         if expected_len > output_len || (expected_len & !7) > output_len {
@@ -239,12 +230,11 @@ impl Aes128KeyWrap {
         let mut aiv: [u8; 8] = [0xa6u8, 0x59, 0x59, 0xa6, 0, 0, 0, 0];
         BigEndian::write_u32(&mut aiv[4..8], expected_len as u32);
 
-        let mut block = [0u8; 16];
-        let block = GenericArray::from_mut_slice(&mut block);
+        let mut block = Array([0u8; 16]);
 
         if output.len() == 8 {
             block.copy_from_slice(input);
-            self.aes.decrypt_block(block);
+            self.aes.decrypt_block(&mut block);
             let c = block[0..8]
                 .iter()
                 .zip(aiv.iter())
@@ -271,7 +261,7 @@ impl Aes128KeyWrap {
                     .iter_mut()
                     .zip(counter_bin.iter())
                     .for_each(|(a, b)| *a ^= b);
-                self.aes.decrypt_block(block);
+                self.aes.decrypt_block(&mut block);
                 output[i..][0..8].copy_from_slice(&block[8..16]);
             }
         }
