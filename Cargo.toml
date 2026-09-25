@@ -1,6 +1,6 @@
 [package]
 name = "aes-keywrap"
-version = "0.9.0"
+version = "0.9.1"
 authors = ["Frank Denis <github@pureftpd.org>"]
 edition = "2018"
 description = "AES key wrapping and unwrapping with AES-KW (RFC 3394) and AES-KWP (RFC 5649) for encrypting secret keys"
@@ -12,5 +12,5 @@ license = "MIT"
 readme = "README.md"
 
 [dependencies]
-aes = "0.9.0-rc.2"
+aes = "0.9.3"
 byteorder = "1.5"
